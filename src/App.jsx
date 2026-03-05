@@ -27,6 +27,13 @@ function App() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const navItems = [
+        { label: 'Home', href: '#' },
+        { label: 'Process', href: '#how-it-works' },
+        { label: 'Portfolio', href: '#portfolio' },
+        { label: 'About', href: '#about' },
+    ];
+
     return (
         <div className="relative min-h-screen bg-[#F8FAFC] overflow-x-hidden font-sans text-slate-800 scroll-smooth">
             {/* Animated Background Blobs */}
@@ -37,6 +44,8 @@ function App() {
 
             {/* Navigation */}
             <PillNav
+                items={navItems}
+                theme="light"
                 pillColor="#1E3A8A"
                 hoveredPillTextColor="#ffffff"
             />
