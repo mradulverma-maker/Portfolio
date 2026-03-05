@@ -14,6 +14,7 @@ import PatientCommunication from './components/PatientCommunication';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
+import AboutUs from './components/AboutUs';
 
 function App() {
     const [showFloat, setShowFloat] = useState(false);
