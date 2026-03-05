@@ -52,8 +52,7 @@ function App() {
             />
 
             <Hero />
-
-
+            <h1 style={{ color: 'red', fontSize: '100px', textAlign: 'center' }}>DEPLOYMENT TEST</h1>
             {/* Main Sections */}
             <HowItWorks />
             <Portfolio />
