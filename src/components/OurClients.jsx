@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const OurClients = () => {
     return (
-        <section className="py-24 bg-[#F8FAFC] flex flex-col items-center justify-center font-sans relative overflow-hidden">
+        <section id="portfolio" className="py-24 bg-[#F8FAFC] flex flex-col items-center justify-center font-sans relative overflow-hidden">
             <div className="w-full max-w-[1100px] px-6 relative z-10">
 
                 {/* HEADLINE */}
