@@ -29,30 +29,20 @@ function App() {
 
     return (
         <div className="relative min-h-screen bg-[#F8FAFC] overflow-x-hidden font-sans text-slate-800 scroll-smooth">
-            {/* Background Dot Grid */}
-            <div className="fixed inset-0 z-0 opacity-40 dot-grid-bg pointer-events-none"></div>
-
-            {/* Floating Gradient Blobs */}
-            <div className="fixed -top-20 -right-20 w-[600px] h-[600px] bg-blue-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.07] animate-blob pointer-events-none"></div>
-            <div className="fixed -bottom-40 -left-40 w-[600px] h-[600px] bg-indigo-400 rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob pointer-events-none animation-delay-2000"></div>
+            {/* Animated Background Blobs */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/50 rounded-full blur-[120px] animate-blob"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-100/50 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
+            </div>
 
             {/* Navigation */}
             <PillNav
-                logo={<span className="font-serif font-bold text-2xl text-[#1E3A8A]">MedEdit.</span>}
-                items={[
-                    { label: 'Home', href: '#' },
-                    { label: 'Process', href: '#how-it-works' },
-                    { label: 'Portfolio', href: '#work' },
-                    { label: 'About', href: '#about' }
-                ]}
-                activeHref="#"
-                theme="light"
                 pillColor="#1E3A8A"
                 hoveredPillTextColor="#ffffff"
             />
 
             <Hero />
-            <h1 style={{ color: 'red', fontSize: '100px', textAlign: 'center' }}>DEPLOYMENT TEST</h1>
+
             {/* Main Sections */}
             <HowItWorks />
             <Portfolio />
@@ -83,7 +73,6 @@ function App() {
                     </motion.a>
                 )}
             </AnimatePresence>
-
         </div>
     );
 }
