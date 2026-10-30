@@ -100,7 +100,7 @@ section{padding:96px max(22px,calc((100% - 1120px)/2))}
 .cn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%);width:min(800px,calc(100% - 28px));z-index:40;transition:transform .4s cubic-bezier(.22,1,.36,1),opacity .35s ease}
 .cn.nav-hidden{transform:translate(-50%,-100px);opacity:0;pointer-events:none}
 .cn__panel{background:rgba(238,232,223,.82);backdrop-filter:blur(18px) saturate(1.5);border:1px solid var(--ln);border-radius:18px;overflow:hidden;height:60px;transition:height .6s cubic-bezier(.34,1.15,.64,1);box-shadow:0 18px 40px -20px rgba(44,54,90,.45)}
-.cn__bar{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 14px}
+.cn__bar{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 14px;gap:12px}
 .cn__menu{display:flex;align-items:center;gap:10px;background:none;border:0;font:700 14px var(--b);color:var(--oc);cursor:pointer;padding:8px 6px}
 .cn__burger{width:22px;height:12px;position:relative}.cn__burger i{position:absolute;left:0;width:22px;height:2px;background:var(--oc);border-radius:2px;transition:.4s}.cn__burger i:first-child{top:0}.cn__burger i:last-child{bottom:0}
 .open .cn__burger i:first-child{top:5px;transform:rotate(45deg)}.open .cn__burger i:last-child{bottom:5px;transform:rotate(-45deg)}
@@ -157,6 +157,8 @@ section{padding:96px max(22px,calc((100% - 1120px)/2))}
   user-select:none;
   text-decoration:none;
   box-shadow:0 6px 18px -4px rgba(44,54,90,.55);
+  flex-shrink:0;
+  width:auto !important;
 }
 .cn__cta:hover{
   transform:translateY(-1px) scale(1.02);
@@ -342,7 +344,7 @@ wistia-player[media-id='83k2x8hp33']:not(:defined) { background: center / contai
 .ct{text-align:center;margin:0 auto 48px}
 .ct h2{font-size:clamp(36px,5vw,58px);line-height:1.05;margin:10px 0}
 
-/* Curvy underline for creators & professionals */
+/* Straight transparent underline highlight for creators & professionals */
 .ct h2 em{
   font-style:normal;
   position:relative;
@@ -351,11 +353,12 @@ wistia-player[media-id='83k2x8hp33']:not(:defined) { background: center / contai
 .ct h2 em::after{
   content:"";
   position:absolute;
-  left:-4%;
-  bottom:-8px;
-  width:108%;
-  height:14px;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 20' preserveAspectRatio='none'%3E%3Cpath d='M3,14 Q 75,2 150,13 T 297,10' fill='none' stroke='%232c365a' stroke-width='4.5' stroke-linecap='round' stroke-opacity='0.42'/%3E%3C/svg%3E") no-repeat center bottom / 100% 100%;
+  left:0;
+  bottom:-4px;
+  width:100%;
+  height:3px;
+  background:rgba(44,54,90,.32);
+  border-radius:2px;
   pointer-events:none;
 }
 
@@ -573,7 +576,9 @@ footer{padding:34px 22px 50px;text-align:center;font-size:13px;color:var(--mu);b
   .case{grid-template-columns:1fr}
   .stats{grid-template-columns:1fr 1fr}
   .row{flex-direction:column;align-items:stretch}
-  .specular-btn{width:100%;text-align:center}
+  .row .specular-btn, .case .specular-btn{width:100%;text-align:center}
+  .cn__bar{padding:0 8px 0 12px;gap:16px}
+  .cn__cta{width:auto !important;max-width:max-content;padding:8px 16px;font-size:12.5px;flex-shrink:0}
 }
 </style>
 </head>
@@ -930,13 +935,61 @@ window.addEventListener("load", function(){
   setTimeout(function(){ if(videoNotice) videoNotice.classList.add("hidden"); }, 3500);
 });
 
+/* ── Only 1 video plays at a time (pause all other videos when one plays) ── */
+(function(){
+  function pauseOtherVideos(activeHashedId, activeEl){
+    var players = document.querySelectorAll("wistia-player");
+    players.forEach(function(p){
+      if(p === activeEl) return;
+      var mid = p.getAttribute("media-id");
+      if(activeHashedId && mid === activeHashedId) return;
+      try {
+        if(typeof p.pause === "function") p.pause();
+        if(p.api && typeof p.api.pause === "function") p.api.pause();
+      } catch(e){}
+    });
+    if(window._wq && Array.isArray(window._wq)){
+      window._wq.push({
+        id: "_all",
+        onReady: function(v){
+          try {
+            if(v && typeof v.pause === "function"){
+              if(!activeHashedId || v.hashedId() !== activeHashedId){
+                v.pause();
+              }
+            }
+          } catch(e){}
+        }
+      });
+    }
+  }
+
+  window._wq = window._wq || [];
+  window._wq.push({
+    id: "_all",
+    onReady: function(video){
+      video.bind("play", function(){
+        pauseOtherVideos(video.hashedId(), null);
+      });
+    }
+  });
+
+  document.addEventListener("play", function(e){
+    var player = e.target.closest ? e.target.closest("wistia-player") : null;
+    var mid = player ? player.getAttribute("media-id") : null;
+    pauseOtherVideos(mid, player || e.target);
+  }, true);
+})();
+
 /* ── CardNav Interaction & Smart Auto Hide/Show on Scroll ── */
 var cn = document.getElementById("cn"),
     panel = document.getElementById("panel"),
     cc = document.getElementById("cc"),
     menu = document.getElementById("menu"),
     isOpen = false,
-    lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+    lastScrollY = window.pageYOffset || document.documentElement.scrollTop,
+    scrollUpDistance = 0,
+    scrollDownDistance = 0;
 
 function setNav(o){
   isOpen = o;
@@ -954,12 +1007,28 @@ addEventListener("resize", function(){ if(isOpen) setNav(true); });
 window.addEventListener("scroll", function(){
   var currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
   if(isOpen) return; // Keep visible while menu drawer is open
-  if(currentScrollY > lastScrollY && currentScrollY > 80){
-    // Scrolling down -> hide navbar
-    cn.classList.add("nav-hidden");
-  } else if(currentScrollY < lastScrollY){
-    // Scrolling up -> smoothly restore navbar
+
+  var diff = currentScrollY - lastScrollY;
+
+  if(currentScrollY <= 80){
+    // Near top: always restore navbar smoothly
     cn.classList.remove("nav-hidden");
+    scrollUpDistance = 0;
+    scrollDownDistance = 0;
+  } else if(diff > 4){
+    // Scrolling down -> hide after intentional downward motion
+    scrollDownDistance += diff;
+    scrollUpDistance = 0;
+    if(scrollDownDistance > 40){
+      cn.classList.add("nav-hidden");
+    }
+  } else if(diff < -4){
+    // Scrolling up -> only show when scrolling WAY up (180px or more)
+    scrollUpDistance += Math.abs(diff);
+    scrollDownDistance = 0;
+    if(scrollUpDistance >= 180){
+      cn.classList.remove("nav-hidden");
+    }
   }
   lastScrollY = Math.max(0, currentScrollY);
 }, {passive:true});
