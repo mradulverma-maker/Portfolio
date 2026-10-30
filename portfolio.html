@@ -571,14 +571,22 @@ footer{padding:34px 22px 50px;text-align:center;font-size:13px;color:var(--mu);b
   section{padding:72px 20px}
 }
 @media(max-width:560px){
+  .cn__cards{grid-template-columns:1fr}.cn__logo{display:none}
   .reels-row-1{grid-template-columns:1fr}
   .reels-row-2{grid-template-columns:1fr}
   .case{grid-template-columns:1fr}
   .stats{grid-template-columns:1fr 1fr}
   .row{flex-direction:column;align-items:stretch}
   .row .specular-btn, .case .specular-btn{width:100%;text-align:center}
-  .cn__bar{padding:0 8px 0 12px;gap:16px}
-  .cn__cta{width:auto !important;max-width:max-content;padding:8px 16px;font-size:12.5px;flex-shrink:0}
+  .cn__bar{padding:0 8px 0 12px;gap:12px}
+  .cn__menu{flex-shrink:0}
+  .cn__cta{
+    width:clamp(165px, 50vw, 215px) !important;
+    padding:10px 18px;
+    font-size:13px;
+    flex-shrink:0;
+    text-align:center;
+  }
 }
 </style>
 </head>
@@ -989,7 +997,9 @@ var cn = document.getElementById("cn"),
     isOpen = false,
     lastScrollY = window.pageYOffset || document.documentElement.scrollTop,
     scrollUpDistance = 0,
-    scrollDownDistance = 0;
+    scrollDownDistance = 0,
+    scrollPauseTimer = null,
+    SCROLL_UP_THRESHOLD = 460; // Requires scrolling WAY UP (460px+) to avoid any reading irritation
 
 function setNav(o){
   isOpen = o;
@@ -1010,23 +1020,30 @@ window.addEventListener("scroll", function(){
 
   var diff = currentScrollY - lastScrollY;
 
-  if(currentScrollY <= 80){
-    // Near top: always restore navbar smoothly
+  // Reset scroll distance accumulator if user pauses scrolling
+  clearTimeout(scrollPauseTimer);
+  scrollPauseTimer = setTimeout(function(){
+    scrollUpDistance = 0;
+    scrollDownDistance = 0;
+  }, 450);
+
+  if(currentScrollY <= 60){
+    // Near top of page: always restore navbar smoothly
     cn.classList.remove("nav-hidden");
     scrollUpDistance = 0;
     scrollDownDistance = 0;
-  } else if(diff > 4){
-    // Scrolling down -> hide after intentional downward motion
+  } else if(diff > 3){
+    // Scrolling down -> hide navbar smoothly
     scrollDownDistance += diff;
     scrollUpDistance = 0;
-    if(scrollDownDistance > 40){
+    if(scrollDownDistance > 35){
       cn.classList.add("nav-hidden");
     }
-  } else if(diff < -4){
-    // Scrolling up -> only show when scrolling WAY up (180px or more)
+  } else if(diff < -3){
+    // Scrolling up -> ONLY show when scrolling WAY up (heavy intentional scroll)
     scrollUpDistance += Math.abs(diff);
     scrollDownDistance = 0;
-    if(scrollUpDistance >= 180){
+    if(scrollUpDistance >= SCROLL_UP_THRESHOLD){
       cn.classList.remove("nav-hidden");
     }
   }
